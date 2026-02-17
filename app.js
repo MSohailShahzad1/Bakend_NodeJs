@@ -1,10 +1,18 @@
-import express from 'express';
+import express from "express";
+import fileRoutes from "./routes/fileRoutes.js";
+import { loggerMiddleware } from "./middlewares/loggerMiddleware.js";
+import { errorMiddleware } from "./middlewares/errorMiddleware.js";
+
 const app = express();
 
-app.get('/', (req, res) => {
-    res.send('Hello World!');
-});
+app.use(express.json());
+app.use(loggerMiddleware);
+
+// Routes
+app.use("/api/files", fileRoutes);
+
+app.use(errorMiddleware);
 
 app.listen(3000, () => {
-    console.log(`Example app listening on port 3000`);
+    console.log("Server running on port 3000");
 });
