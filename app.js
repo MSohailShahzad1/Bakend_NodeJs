@@ -10,6 +10,9 @@ app.use(loggerMiddleware);
 
 // Routes
 app.use("/api/files", fileRoutes);
+app.get("/", (req, res) => {
+    res.send("Welcome to the File Streaming API. Visit /api/files/stream to stream the file.");
+});
 
 app.use(errorMiddleware);
 
