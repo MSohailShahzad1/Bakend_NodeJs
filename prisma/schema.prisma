@@ -10,9 +10,22 @@ datasource db {
   provider = "sqlite"
 }
 
+enum allowedRole {
+  ADMIN
+  USER
+}
+
+model Role {
+  id    Int         @id @default(autoincrement())
+  name  allowedRole @unique
+  users User[]
+}
+
 model User {
-  id    Int    @id @default(autoincrement())
-  name  String
-  email String @unique
-  role  String @default("USER")
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  roleId    Int
+  role      Role     @relation(fields: [roleId], references: [id])
+  createdAt DateTime @default(now())
 }
