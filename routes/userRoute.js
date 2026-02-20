@@ -7,7 +7,7 @@ import { upload } from "../middlewares/uploadMiddleware.js";
 const router = express.Router();
 
 router.patch(
-    "/me/profile-image",
+    "/:id/profile-image",
     authenticate,
     upload.single("image"),
     uploadProfileImage

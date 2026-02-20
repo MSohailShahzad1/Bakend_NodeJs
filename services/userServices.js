@@ -7,8 +7,9 @@ const createHttpError = (status, message) => {
 };
 
 export const updateProfileImageService = async (userId, imagePath) => {
+    const id = Number.parseInt(userId, 10)
     return await prisma.user.update({
-        where: { id: userId },
+        where: { id: id },
         data: { profileImage: imagePath },
     });
 };

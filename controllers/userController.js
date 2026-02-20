@@ -11,7 +11,7 @@ export const uploadProfileImage = async (req, res) => {
 
         const imagePath = `/uploads/${req.file.filename}`;
 
-        await userService.updateProfileImageService(req.user.id, imagePath);
+        await userService.updateProfileImageService(req.params.id, imagePath);
 
         return res.status(200).json({
             success: true,
