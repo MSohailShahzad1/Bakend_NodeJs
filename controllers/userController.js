@@ -1,5 +1,31 @@
 import * as userService from "../services/userServices.js";
 
+export const uploadProfileImage = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "No file uploaded",
+            });
+        }
+
+        const imagePath = `/uploads/${req.file.filename}`;
+
+        await userService.updateProfileImageService(req.user.id, imagePath);
+
+        return res.status(200).json({
+            success: true,
+            message: "Profile image uploaded successfully",
+            imagePath,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
 //GET /users
 
 export const getUsers = async (req, res, next) => {

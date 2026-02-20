@@ -1,12 +1,19 @@
 import express from "express";
-import { getUsers, getUserById, deleteUser } from "../controllers/userController.js";
+import { getUsers, getUserById, deleteUser, uploadProfileImage } from "../controllers/userController.js";
 import { isAdmin } from "../middlewares/roleMiddleware.js";
 import { authenticate } from "../middlewares/authMiddleware.js";
+import { upload } from "../middlewares/uploadMiddleware.js";
 
 const router = express.Router();
 
-router.get("/users", authenticate, getUsers);
-router.get("/users/:id", authenticate, getUserById);
-router.delete("/users/:id", authenticate, isAdmin, deleteUser);
+router.patch(
+    "/me/profile-image",
+    authenticate,
+    upload.single("image"),
+    uploadProfileImage
+);
+router.get("/", authenticate, getUsers);
+router.get("/:id", authenticate, getUserById);
+router.delete("/:id", authenticate, isAdmin, deleteUser);
 
 export default router;

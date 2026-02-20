@@ -6,6 +6,13 @@ const createHttpError = (status, message) => {
     return error;
 };
 
+export const updateProfileImageService = async (userId, imagePath) => {
+    return await prisma.user.update({
+        where: { id: userId },
+        data: { profileImage: imagePath },
+    });
+};
+
 export const getUsers = async () => {
     return prisma.user.findMany();
 };

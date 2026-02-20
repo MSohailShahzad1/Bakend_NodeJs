@@ -12,8 +12,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(loggerMiddleware);
 
 // Routes 
+app.use("/uploads", express.static("uploads"));
 app.use("/api/files", fileRoutes);
-app.use("/api", userRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoute)
 app.get("/", (req, res) => {
     res.send("Welcome");
