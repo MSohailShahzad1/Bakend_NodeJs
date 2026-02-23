@@ -6,16 +6,11 @@ export const register = async (req, res, next) => {
         const user = await registerUser({ name, email, password });
 
         res.status(201).json({
-            message: "User registered",
-            user
+            success: true,
+            message: "User registered successfully",
+            data: user,
         });
     } catch (error) {
-        if (error.status) {
-            return res.status(error.status).json({
-                success: false,
-                message: error.message,
-            });
-        }
         next(error);
     }
 };
@@ -25,14 +20,12 @@ export const login = async (req, res, next) => {
         const { email, password } = req.body;
         const data = await loginUser({ email, password });
 
-        res.json(data);
+        res.status(200).json({
+            success: true,
+            message: "Login successful",
+            data,
+        });
     } catch (error) {
-        if (error.status) {
-            return res.status(error.status).json({
-                success: false,
-                message: error.message,
-            });
-        }
         next(error);
     }
 };

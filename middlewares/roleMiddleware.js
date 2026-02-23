@@ -1,21 +1,15 @@
-const createHttpError = (status, message) => {
-    const error = new Error(message);
-    error.status = status;
-    return error;
-};
+import { createHttpError } from "../utils/httpError.js";
 
-export const isAdmin = (req, res, next) => {
-    try {
-        if (!req.user) {
-            throw createHttpError(401, 'Authentication required');
-        }
-
-        if (req.user.role !== 'ADMIN') {
-            throw createHttpError(403, 'Admin access required');
-        }
-
-        next();
-    } catch (error) {
-        next(error);
+export const authorizeRoles = (...roles) => (req, res, next) => {
+    if (!req.user) {
+        return next(createHttpError(401, "Authentication required"));
     }
+
+    if (!roles.includes(req.user.role)) {
+        return next(createHttpError(403, "Forbidden: insufficient role"));
+    }
+
+    return next();
 };
+
+export const isAdmin = authorizeRoles("ADMIN");

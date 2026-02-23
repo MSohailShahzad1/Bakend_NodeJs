@@ -1,24 +1,16 @@
-// utils/jwt.js
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
-export const generateToken = (user) => {
-    return jwt.sign(
+export const generateToken = (user) =>
+    jwt.sign(
         {
             id: user.id,
             email: user.email,
-            role: user.role?.name || user.role // Handle both populated and direct role
+            role: user.role,
         },
         JWT_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn: "7d" }
     );
-};
 
-export const verifyToken = (token) => {
-    try {
-        return jwt.verify(token, JWT_SECRET);
-    } catch (error) {
-        return null;
-    }
-};
+export const verifyToken = (token) => jwt.verify(token, JWT_SECRET);

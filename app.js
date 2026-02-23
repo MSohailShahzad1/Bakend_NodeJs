@@ -1,9 +1,9 @@
 import express from "express";
-import fileRoutes from "./routes/fileRoutes.js";
-import { loggerMiddleware } from "./middlewares/loggerMiddleware.js";
+import authRoutes from "./routes/authRoutes.js";
+import internRoutes from "./routes/internRoutes.js";
+import taskRoutes from "./routes/taskRoutes.js";
 import { errorMiddleware } from "./middlewares/errorMiddleware.js";
-import userRoutes from "./routes/userRoute.js";
-import authRoute from "./routes/authRoutes.js"
+import { loggerMiddleware } from "./middlewares/loggerMiddleware.js";
 
 const app = express();
 
@@ -11,13 +11,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(loggerMiddleware);
 
-// Routes 
+// Routes
 app.use("/uploads", express.static("uploads"));
-app.use("/api/files", fileRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/auth", authRoute)
+app.use("/api/auth", authRoutes);
+app.use("/api/interns", internRoutes);
+app.use("/api/tasks", taskRoutes);
+
 app.get("/", (req, res) => {
-    res.send("Welcome");
+    res.send("Intern Management Backend API");
 });
 
 app.use(errorMiddleware);

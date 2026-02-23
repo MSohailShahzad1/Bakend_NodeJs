@@ -1,86 +1,66 @@
+import bcrypt from "bcrypt";
 import prisma from "../lib/prisma.js";
-import bcrypt from "bcrypt"
+import { createHttpError } from "../utils/httpError.js";
 import { generateToken } from "../utils/jwt.js";
 
-const createHttpError = (status, message) => {
-    const error = new Error(message);
-    error.status = status;
-    return error;
-};
+const sanitizeUser = (user) => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    createdAt: user.createdAt,
+});
 
 export const registerUser = async (payload = {}) => {
     const { name, email, password } = payload;
+
     if (!name || !email || !password) {
-        throw createHttpError(400, "Name, email, and password are required");
+        throw createHttpError(400, "Name, email and password are required");
     }
 
-    // Check if user already exists
     const existingUser = await prisma.user.findUnique({
-        where: { email: email }
+        where: { email },
     });
+
     if (existingUser) {
-        throw createHttpError(409, "User with email already exists");
+        throw createHttpError(409, "User with this email already exists");
     }
 
-    // Hash password
-    const saltRound = 10;
-    const hashPassword = await bcrypt.hash(password, saltRound);
-
-    // Get the USER role from database
-    const userRole = await prisma.role.findUnique({
-        where: { name: "USER" }
-    });
-
-    if (!userRole) {
-        throw createHttpError(500, "USER role not found in database. Please run seed script first.");
-    }
-
-    // Create user with USER role
-    const user = await prisma.user.create({
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const createdUser = await prisma.user.create({
         data: {
+            name,
             email,
-            password: hashPassword,
-            roleId: userRole.id, // Use the role ID from database
+            password: hashedPassword,
+            role: "USER",
         },
-        include: {
-            role: true // Include role information in response
-        }
     });
 
-    // Remove password from response
-    const { password: _, ...userWithoutPassword } = user;
-    return userWithoutPassword;
-}
+    return sanitizeUser(createdUser);
+};
 
 export const loginUser = async (payload = {}) => {
-
     const { email, password } = payload;
+
     if (!email || !password) {
         throw createHttpError(400, "Email and password are required");
     }
 
     const user = await prisma.user.findUnique({
-        where: { email: email },
-        include: {
-            role: true // Include role information
-        }
+        where: { email },
     });
 
     if (!user) {
-        throw createHttpError(401, "User does not exist! Please register");
+        throw createHttpError(401, "Invalid credentials");
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-        throw createHttpError(401, "Wrong password. Please try again");
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+        throw createHttpError(401, "Invalid credentials");
     }
 
-    // Remove password from user object
-    const { password: _, ...userWithoutPassword } = user;
+    const cleanUser = sanitizeUser(user);
+    const token = generateToken(cleanUser);
 
-    // Generate token with user info
-    const token = generateToken(userWithoutPassword);
-
-    return { user: userWithoutPassword, token };
-}
+    return { user: cleanUser, token };
+};
